@@ -1,3 +1,9 @@
+## v0.0.4 (February 21, 2025)
+
+* Close input stream explicitly https://github.com/awslabs/analytics-accelerator-s3/pull/222
+* Timeout retry stuck sdk client https://github.com/awslabs/analytics-accelerator-s3/pull/219
+* Adds in constructor for open stream information https://github.com/awslabs/analytics-accelerator-s3/pull/223
+
 ## v0.0.3 (February 4, 2025)
 
 * Fix Len = 0 and Insufficient Buffer behaviours for positioned reads https://github.com/awslabs/analytics-accelerator-s3/pull/203
