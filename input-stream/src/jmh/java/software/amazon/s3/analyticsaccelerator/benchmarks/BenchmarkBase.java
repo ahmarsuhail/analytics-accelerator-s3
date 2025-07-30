@@ -49,6 +49,9 @@ public abstract class BenchmarkBase extends ExecutionBase {
    *
    * @throws IOException thrown on IO error
    */
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+      value = "NM_CONFUSING",
+      justification = "overriding JMH method")
   @Setup(Level.Trial)
   public void setUp() throws IOException {
     this.s3ExecutionContext.getAndSet(

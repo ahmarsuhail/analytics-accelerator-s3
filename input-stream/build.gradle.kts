@@ -76,6 +76,8 @@ dependencies {
 
     jmhImplementation(libs.s3)
     jmhImplementation(libs.s3.transfer.manager)
+    jmhImplementation(libs.netty.nio.client)
+    jmhImplementation(libs.apache.client)
     jmhImplementation(testFixtures(project(":input-stream")))
 
     testFixturesImplementation(libs.s3)
@@ -240,6 +242,7 @@ val jmhJsonOutputResultsPath = "reports/jmh/results.json"
 
 // JMH micro-benchmarks
 jmh {
+    includes = listOf("ConcurrentStreamPerformanceBenchmark")
     jmhVersion = "1.37"
     failOnError = true
     forceGC = true
