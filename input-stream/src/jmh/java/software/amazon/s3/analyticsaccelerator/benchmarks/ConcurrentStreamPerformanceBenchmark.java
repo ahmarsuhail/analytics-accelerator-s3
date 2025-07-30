@@ -48,10 +48,9 @@ import software.amazon.s3.analyticsaccelerator.S3SdkObjectClient;
 import software.amazon.s3.analyticsaccelerator.S3SeekableInputStream;
 import software.amazon.s3.analyticsaccelerator.S3SeekableInputStreamConfiguration;
 import software.amazon.s3.analyticsaccelerator.S3SeekableInputStreamFactory;
-import software.amazon.s3.analyticsaccelerator.access.S3ExecutionConfiguration;
-import software.amazon.s3.analyticsaccelerator.access.S3ExecutionContext;
 import software.amazon.s3.analyticsaccelerator.access.StreamRead;
 import software.amazon.s3.analyticsaccelerator.access.StreamReadPattern;
+import software.amazon.s3.analyticsaccelerator.common.ConnectorConfiguration;
 import software.amazon.s3.analyticsaccelerator.common.ObjectRange;
 import software.amazon.s3.analyticsaccelerator.request.ObjectMetadata;
 import software.amazon.s3.analyticsaccelerator.util.OpenStreamInformation;
@@ -64,6 +63,11 @@ import software.amazon.s3.analyticsaccelerator.util.S3URI;
  */
 public class ConcurrentStreamPerformanceBenchmark {
 
+  public static final String BUCKET_KEY_ASYNC = "S3_TEST_BUCKET_ASYNC";
+  public static final String BUCKET_KEY_SYNC = "S3_TEST_BUCKET_SYNC";
+  public static final String BUCKET_KEY_VECTORED = "S3_TEST_BUCKET_VECTORED";
+  public static final String PREFIX_KEY = "S3_TEST_PREFIX";
+
   /** This class holds the common variables to be used across micro benchmarks in this class. */
   @State(Scope.Thread)
   public static class BenchmarkState {
@@ -71,7 +75,7 @@ public class ConcurrentStreamPerformanceBenchmark {
     S3AsyncClient s3AsyncClient;
     List<S3Object> s3Objects;
     ExecutorService executor;
-    S3ExecutionContext s3ExecutionContext;
+    ConnectorConfiguration configuration;
     S3SeekableInputStreamFactory s3SeekableInputStreamFactory;
     String bucketName;
     int maxConcurrency;
@@ -99,11 +103,11 @@ public class ConcurrentStreamPerformanceBenchmark {
       // The number of reads to do in parallel
       this.maxConcurrency = Runtime.getRuntime().availableProcessors();
       this.executor = Executors.newFixedThreadPool(100);
-      this.s3ExecutionContext = new S3ExecutionContext(S3ExecutionConfiguration.fromEnvironment());
-      this.bucketName = s3ExecutionContext.getConfiguration().getAsyncBucket();
+      this.configuration = new ConnectorConfiguration(System.getenv());
+      this.bucketName = this.configuration.getRequiredString(BUCKET_KEY_ASYNC);
       this.s3Objects =
           BenchmarkUtils.getKeys(
-              s3Client, bucketName, s3ExecutionContext.getConfiguration().getPrefix(), 500);
+              s3Client, bucketName, configuration.getRequiredString(PREFIX_KEY), 500);
       this.s3SeekableInputStreamFactory =
           new S3SeekableInputStreamFactory(
               new S3SdkObjectClient(this.s3AsyncClient),
@@ -124,13 +128,13 @@ public class ConcurrentStreamPerformanceBenchmark {
   public void runBenchmark(BenchmarkState state) throws Exception {
     switch (state.clientKind) {
       case SDK_ASYNC_JAVA:
-        execute(state, state.s3ExecutionContext.getConfiguration().getAsyncBucket());
+        execute(state, state.configuration.getRequiredString(BUCKET_KEY_ASYNC));
         break;
       case SDK_SYNC_JAVA:
-        execute(state, state.s3ExecutionContext.getConfiguration().getSyncBucket());
+        execute(state, state.configuration.getRequiredString(BUCKET_KEY_SYNC));
         break;
       case AAL_ASYNC_READ_VECTORED:
-        execute(state, state.s3ExecutionContext.getConfiguration().getVectoredBucket());
+        execute(state, state.configuration.getRequiredString(BUCKET_KEY_VECTORED));
         break;
     }
   }

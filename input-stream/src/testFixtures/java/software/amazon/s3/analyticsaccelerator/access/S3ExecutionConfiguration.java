@@ -31,15 +31,12 @@ public class S3ExecutionConfiguration {
   public static final String PREFIX_KEY = "S3_TEST_PREFIX";
   public static final String READ_BUFFER_SIZE_MB_KEY = "S3_TEST_READ_BUFFER_SIZE_MB";
   public static final int DEFAULT_READ_BUFFER_SIZE_MB_KEY = 8;
-  public static final String BUCKET_KEY_ASYNC = "S3_TEST_BUCKET_ASYNC";
-  public static final String BUCKET_KEY_SYNC = "S3_TEST_BUCKET_SYNC";
-  public static final String BUCKET_KEY_VECTORED = "S3_TEST_BUCKET_VECTORED";
 
   @NonNull String bucket;
   @NonNull String prefix;
-  @NonNull String asyncBucket;
-  @NonNull String syncBucket;
-  @NonNull String vectoredBucket;
+  String asyncBucket;
+  String syncBucket;
+  String vectoredBucket;
   int bufferSizeMb;
   @NonNull S3AsyncClientFactoryConfiguration clientFactoryConfiguration;
 
@@ -52,9 +49,6 @@ public class S3ExecutionConfiguration {
   public static S3ExecutionConfiguration fromConfiguration(ConnectorConfiguration configuration) {
     return S3ExecutionConfiguration.builder()
         .bucket(configuration.getRequiredString(BUCKET_KEY))
-        .asyncBucket(configuration.getRequiredString(BUCKET_KEY_ASYNC))
-        .syncBucket(configuration.getRequiredString(BUCKET_KEY_SYNC))
-        .vectoredBucket(configuration.getRequiredString(BUCKET_KEY_VECTORED))
         .prefix(configuration.getRequiredString(PREFIX_KEY))
         .bufferSizeMb(
             configuration.getInt(READ_BUFFER_SIZE_MB_KEY, DEFAULT_READ_BUFFER_SIZE_MB_KEY))
