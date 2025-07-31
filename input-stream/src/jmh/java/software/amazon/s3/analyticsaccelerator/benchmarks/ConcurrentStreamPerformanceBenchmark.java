@@ -23,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -134,12 +133,12 @@ public class ConcurrentStreamPerformanceBenchmark {
         "\nReading parquet files with: " + state.clientKind + " from bucket: " + bucket);
 
     for (int i = 0; i < state.s3Objects.size() - 1; i = i + state.maxConcurrency) {
-      List<Future<?>> futures = new ArrayList<>();
+      List<CompletableFuture<?>> futures = new ArrayList<>();
 
       for (int j = i; j < i + state.maxConcurrency && j < state.s3Objects.size() - 1; j++) {
         final int k = j;
-        Future<?> f =
-            state.executor.submit(
+        CompletableFuture<?> f =
+            CompletableFuture.runAsync(
                 () -> {
                   try {
                     if (state.clientKind == S3ClientAndReadKind.AAL_ASYNC_READ_VECTORED) {
@@ -150,13 +149,12 @@ public class ConcurrentStreamPerformanceBenchmark {
                   } catch (Exception e) {
                     throw new RuntimeException(e);
                   }
-                });
+                },
+                state.executor);
         futures.add(f);
       }
 
-      // Wait for all submitted tasks to be completed
-      CompletableFuture[] cfs = futures.toArray(new CompletableFuture[futures.size()]);
-      CompletableFuture.allOf(cfs).get();
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).get();
     }
   }
 
@@ -223,21 +221,25 @@ public class ConcurrentStreamPerformanceBenchmark {
     StreamReadPattern streamReadPattern =
         BenchmarkUtils.getQuasiParquetColumnChunkPattern(s3Object.size());
 
-    List<Future<Long>> fList = new ArrayList<>();
+    List<CompletableFuture<Long>> futures = new ArrayList<>();
 
     for (StreamRead streamRead : streamReadPattern.getStreamReads()) {
-      fList.add(
-          state.executor.submit(
-              () ->
-                  readStream(
+      futures.add(
+          CompletableFuture.supplyAsync(
+              () -> {
+                try {
+                  return readStream(
                       getDataStream(bucket, s3Object, state, streamRead),
                       s3Object.key(),
-                      streamRead)));
+                      streamRead);
+                } catch (Exception e) {
+                  throw new RuntimeException(e);
+                }
+              },
+              state.executor));
     }
 
-    for (Future<Long> f : fList) {
-      f.get();
-    }
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).get();
   }
 
   private ResponseInputStream<GetObjectResponse> getDataStream(
