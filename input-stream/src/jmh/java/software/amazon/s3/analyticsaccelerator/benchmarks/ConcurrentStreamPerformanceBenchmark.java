@@ -34,6 +34,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Warmup;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
@@ -63,9 +64,7 @@ import software.amazon.s3.analyticsaccelerator.util.S3URI;
  */
 public class ConcurrentStreamPerformanceBenchmark {
 
-  public static final String BUCKET_KEY_ASYNC = "S3_TEST_BUCKET_ASYNC";
-  public static final String BUCKET_KEY_SYNC = "S3_TEST_BUCKET_SYNC";
-  public static final String BUCKET_KEY_VECTORED = "S3_TEST_BUCKET_VECTORED";
+  public static final String DATASET_KEY = "S3_DATASET_BUCKET";
   public static final String PREFIX_KEY = "S3_TEST_PREFIX";
 
   /** This class holds the common variables to be used across micro benchmarks in this class. */
@@ -104,7 +103,7 @@ public class ConcurrentStreamPerformanceBenchmark {
       this.maxConcurrency = Runtime.getRuntime().availableProcessors();
       this.executor = Executors.newFixedThreadPool(100);
       this.configuration = new ConnectorConfiguration(System.getenv());
-      this.bucketName = this.configuration.getRequiredString(BUCKET_KEY_ASYNC);
+      this.bucketName = this.configuration.getRequiredString(DATASET_KEY);
       this.s3Objects =
           BenchmarkUtils.getKeys(
               s3Client, bucketName, configuration.getRequiredString(PREFIX_KEY), 500);
@@ -122,21 +121,12 @@ public class ConcurrentStreamPerformanceBenchmark {
   }
 
   @Benchmark
-  @Measurement(iterations = 5)
+  @Warmup(iterations = 3)
+  @Measurement(iterations = 3)
   @Fork(1)
   @BenchmarkMode(Mode.SingleShotTime)
   public void runBenchmark(BenchmarkState state) throws Exception {
-    switch (state.clientKind) {
-      case SDK_ASYNC_JAVA:
-        execute(state, state.configuration.getRequiredString(BUCKET_KEY_ASYNC));
-        break;
-      case SDK_SYNC_JAVA:
-        execute(state, state.configuration.getRequiredString(BUCKET_KEY_SYNC));
-        break;
-      case AAL_ASYNC_READ_VECTORED:
-        execute(state, state.configuration.getRequiredString(BUCKET_KEY_VECTORED));
-        break;
-    }
+    execute(state, state.configuration.getRequiredString(DATASET_KEY));
   }
 
   private void execute(BenchmarkState state, String bucket) throws Exception {
@@ -164,9 +154,9 @@ public class ConcurrentStreamPerformanceBenchmark {
         futures.add(f);
       }
 
-      for (Future<?> f : futures) {
-        f.get();
-      }
+      // Wait for all submitted tasks to be completed
+      CompletableFuture[] cfs = futures.toArray(new CompletableFuture[futures.size()]);
+      CompletableFuture.allOf(cfs).get();
     }
   }
 
