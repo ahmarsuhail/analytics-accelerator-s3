@@ -105,7 +105,7 @@ public class ConcurrentStreamPerformanceBenchmark {
       this.bucketName = this.configuration.getRequiredString(DATASET_KEY);
       this.s3Objects =
           BenchmarkUtils.getKeys(
-              s3Client, bucketName, configuration.getRequiredString(PREFIX_KEY), 500);
+              s3Client, bucketName, configuration.getRequiredString(PREFIX_KEY), 200);
       this.s3SeekableInputStreamFactory =
           new S3SeekableInputStreamFactory(
               new S3SdkObjectClient(this.s3AsyncClient),
@@ -115,12 +115,12 @@ public class ConcurrentStreamPerformanceBenchmark {
     /** Shut down once all micro benchmarks in this class complete. */
     @TearDown
     public void tearDown() {
-      executor.shutdown();
+      executor.shutdownNow();
     }
   }
 
   @Benchmark
-  @Warmup(iterations = 3)
+  @Warmup(iterations = 1)
   @Measurement(iterations = 3)
   @Fork(1)
   @BenchmarkMode(Mode.SingleShotTime)
