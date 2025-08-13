@@ -35,12 +35,16 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.ServiceConfiguration;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
+import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -98,6 +102,9 @@ public class ConcurrentStreamPerformanceBenchmark {
           S3Client.builder()
               .httpClient(ApacheHttpClient.builder().maxConnections(400).build())
               .region(Region.US_EAST_1)
+              .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
+              .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
+                  .
               .build();
 
       // The number of reads to do in parallel
