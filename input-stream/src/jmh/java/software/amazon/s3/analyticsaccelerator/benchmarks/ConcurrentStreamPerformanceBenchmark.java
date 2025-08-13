@@ -104,7 +104,6 @@ public class ConcurrentStreamPerformanceBenchmark {
               .region(Region.US_EAST_1)
               .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
               .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
-                  .
               .build();
 
       // The number of reads to do in parallel
