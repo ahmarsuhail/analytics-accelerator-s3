@@ -167,10 +167,16 @@ public class BlockStore implements Closeable {
    */
   public void cleanUp() {
     Iterator<Map.Entry<Integer, Block>> iterator = blocks.entrySet().iterator();
+    System.out.println("MEMORY USAGE BEFORE: " + aggregatingMetrics.get(MetricKey.MEMORY_USAGE));
+
+
+    long startTime = System.nanoTime();
+
     while (iterator.hasNext()) {
       Map.Entry<Integer, Block> entry = iterator.next();
       Block block = entry.getValue();
       BlockKey blockKey = block.getBlockKey();
+
       if (block.isDataReady() && !indexCache.contains(blockKey)) {
         try {
           iterator.remove();
@@ -180,6 +186,11 @@ public class BlockStore implements Closeable {
         }
       }
     }
+
+    long endTime = System.nanoTime();
+
+    System.out.println("TIME TAKEN: " + (endTime - startTime));
+    System.out.println("MEMORY USAGE AFTER: " + aggregatingMetrics.get(MetricKey.MEMORY_USAGE) + "\n");
   }
 
   /**
