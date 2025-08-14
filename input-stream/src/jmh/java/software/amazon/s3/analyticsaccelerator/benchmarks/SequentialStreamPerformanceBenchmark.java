@@ -119,6 +119,8 @@ public class SequentialStreamPerformanceBenchmark {
   }
 
   private void readWithAAL(BenchmarkState state) throws Exception {
+    System.out.println("Reading object: " + state.objectKey + "from bucket: " + state.bucketName + " with AAL");
+
     S3SeekableInputStream s3SeekableInputStream =
         state.s3SeekableInputStreamFactory.createStream(
             S3URI.of(state.bucketName, state.objectKey));
@@ -127,6 +129,8 @@ public class SequentialStreamPerformanceBenchmark {
   }
 
   private void readWithSDK(BenchmarkState state) throws Exception {
+    System.out.println("Reading object: " + state.objectKey + "from bucket: " + state.bucketName + "with SDK");
+
     GetObjectRequest request =
         GetObjectRequest.builder()
             .bucket(state.bucketName)
