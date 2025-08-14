@@ -245,7 +245,7 @@ val jmhJsonOutputResultsPath = "reports/jmh/results.json"
 
 // JMH micro-benchmarks
 jmh {
-    includes = listOf("ConcurrentStreamPerformanceBenchmark")
+    includes = listOf("SequentialStreamPerformanceBenchmark")
     jmhVersion = "1.37"
     failOnError = true
     forceGC = true
