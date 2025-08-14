@@ -253,7 +253,9 @@ public class BlockManager implements Closeable {
     if (!readMode.allowRequestExtension() || pos < configuration.getReadBufferSize()) return 0;
 
     Optional<Block> previousBlock = blockStore.getBlock(pos - 1);
-    return previousBlock.map(block -> block.getGeneration() + 1).orElse(0L);
+    long x = previousBlock.map(block -> block.getGeneration() + 1).orElse(0L);
+
+    return Math.max(10, x);
   }
 
   private long truncatePos(long pos) {
