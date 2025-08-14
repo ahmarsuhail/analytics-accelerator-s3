@@ -110,10 +110,15 @@ public class BlobStore implements Closeable {
   }
 
   void asyncCleanup() {
+    System.out.println("Current memory usage of blobMap in bytes before eviction is: " + metrics.get(MetricKey.MEMORY_USAGE));
+
     LOG.debug(
         "Current memory usage of blobMap in bytes before eviction is: {}",
         metrics.get(MetricKey.MEMORY_USAGE));
     blobMap.forEach((k, v) -> v.asyncCleanup());
+
+    System.out.println("AFTER: " + metrics.get(MetricKey.MEMORY_USAGE) + "\n");
+
     LOG.debug(
         "Current memory usage of blobMap in bytes after eviction is: {}",
         metrics.get(MetricKey.MEMORY_USAGE));
