@@ -48,6 +48,9 @@ public class SequentialReadProgression {
                 configuration.getSequentialPrefetchBase(),
                 Math.floor(configuration.getSequentialPrefetchSpeed() * generation));
 
+
+    System.out.println("PRINTING SIZE: " + size);
+
     return Math.min(128 * ONE_MB, size);
   }
 }
