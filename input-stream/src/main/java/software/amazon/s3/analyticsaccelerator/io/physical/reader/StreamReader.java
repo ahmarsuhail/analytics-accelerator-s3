@@ -179,6 +179,8 @@ public class StreamReader implements Closeable {
 
                         Range requestRange = computeRange(nonFilledBlocks);
 
+                        System.out.printf("MAKING S3 REQUEST for START: " + requestRange.getStart() + " END: " + requestRange.getEnd() + "\n");
+
                         // Build S3 GET request with range, ETag validation, and referrer info
                         GetRequest getRequest =
                             GetRequest.builder()

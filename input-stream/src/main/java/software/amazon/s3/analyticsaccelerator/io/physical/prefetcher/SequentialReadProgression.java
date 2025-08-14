@@ -41,11 +41,13 @@ public class SequentialReadProgression {
     Preconditions.checkArgument(0 <= generation, "`generation` must be non-negative");
 
     // 2, 8, 32, 64
-    return 2
+    long size = 2
         * ONE_MB
         * (long)
             Math.pow(
                 configuration.getSequentialPrefetchBase(),
                 Math.floor(configuration.getSequentialPrefetchSpeed() * generation));
+
+    return Math.min(128 * ONE_MB, size);
   }
 }

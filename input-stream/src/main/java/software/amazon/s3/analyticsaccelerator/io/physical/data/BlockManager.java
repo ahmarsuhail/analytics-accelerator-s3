@@ -155,6 +155,8 @@ public class BlockManager implements Closeable {
 
     long generation = getGeneration(pos, readMode);
 
+    System.out.printf("READING generation: " + generation + "\n");
+
     /*
      There are three different range length we need to consider.
      1/ Length of the requested read
@@ -172,6 +174,8 @@ public class BlockManager implements Closeable {
     }
     // Truncate end position to the object length
     long effectiveEnd = truncatePos(pos + maxReadLength - 1);
+
+    System.out.println("pos: " + pos +  " effectiveEnd: " + effectiveEnd + "size: " + (effectiveEnd - pos) +  "\n");
 
     // Find missing blocks for given range.
     List<Integer> missingBlockIndexes =
