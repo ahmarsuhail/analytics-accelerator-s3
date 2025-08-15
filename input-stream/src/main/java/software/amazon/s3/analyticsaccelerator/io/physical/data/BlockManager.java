@@ -251,7 +251,7 @@ public class BlockManager implements Closeable {
     Optional<Block> previousBlock = blockStore.getBlock(pos - 1);
     long x = previousBlock.map(block -> block.getGeneration() + 1).orElse(0L);
 
-    return Math.min(20, x);
+    return Math.min(10, x);
   }
 
   private long truncatePos(long pos) {
