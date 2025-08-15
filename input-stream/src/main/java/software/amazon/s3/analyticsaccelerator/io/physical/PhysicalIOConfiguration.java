@@ -32,7 +32,7 @@ import software.amazon.s3.analyticsaccelerator.io.physical.prefetcher.Sequential
 @EqualsAndHashCode
 public class PhysicalIOConfiguration {
   private static final long DEFAULT_MEMORY_CAPACITY_BYTES = 2 * ONE_GB;
-  private static final long DEFAULT_CACHE_DATA_TIMEOUT_MILLISECONDS = 1000;
+  private static final long DEFAULT_CACHE_DATA_TIMEOUT_MILLISECONDS = 500;
   private static final long DEFAULT_METADATA_STORE_TTL_MILLISECONDS = 86_400_000; // 24 hours
   private static final int DEFAULT_CAPACITY_METADATA_STORE = 5000;
   private static final boolean DEFAULT_USE_SINGLE_CACHE = true;
@@ -42,7 +42,7 @@ public class PhysicalIOConfiguration {
   private static final double DEFAULT_SEQUENTIAL_PREFETCH_SPEED = 1.0;
   private static final long DEFAULT_BLOCK_READ_TIMEOUT = 30_000;
   private static final int DEFAULT_BLOCK_READ_RETRY_COUNT = 20;
-  private static final int DEFAULT_MEMORY_CLEANUP_FREQUENCY_MILLISECONDS = 5000;
+  private static final int DEFAULT_MEMORY_CLEANUP_FREQUENCY_MILLISECONDS = 2000;
   private static final boolean DEFAULT_SMALL_OBJECTS_PREFETCHING_ENABLED = true;
   private static final long DEFAULT_SMALL_OBJECT_SIZE_THRESHOLD = 8 * ONE_MB;
   private static final int DEFAULT_THREAD_POOL_SIZE = 96;
