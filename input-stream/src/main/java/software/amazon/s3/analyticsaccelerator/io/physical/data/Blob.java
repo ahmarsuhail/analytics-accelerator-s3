@@ -198,6 +198,7 @@ public class Blob implements Closeable {
     }
     try {
       lock.writeLock().lock();
+      System.out.println("ACQUIRED LOCK FOR CLEANUP");
       blockManager.cleanUp();
     } finally {
       lock.writeLock().unlock();
