@@ -198,7 +198,8 @@ public class Blob implements Closeable {
     }
     try {
       lock.writeLock().lock();
-      System.out.println("ACQUIRED LOCK FOR CLEANUP");
+      System.out.printf("MEMORY USED: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
+      System.out.println("ACQUIRED LOCK FOR CLEANUP!!");
       blockManager.cleanUp();
     } finally {
       lock.writeLock().unlock();

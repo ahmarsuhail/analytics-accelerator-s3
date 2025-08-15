@@ -175,7 +175,7 @@ public class BlockStore implements Closeable {
       if (block.isDataReady() && !indexCache.contains(blockKey)) {
         try {
           iterator.remove();
-          System.out.printf("DELETING BLOCK!!!!");
+         // System.out.printf("DELETING BLOCK!!!!");
           aggregatingMetrics.reduce(MetricKey.MEMORY_USAGE, blockKey.getRange().getLength());
         } catch (Exception e) {
           LOG.error("Error in removing block {}", e.getMessage());
