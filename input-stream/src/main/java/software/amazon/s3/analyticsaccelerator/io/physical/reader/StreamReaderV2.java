@@ -84,7 +84,7 @@ public class StreamReaderV2 {
             totalRead += bytesRead;
         }
 
-      //  valkeyClient.putObject(buffer, objectKey.getS3URI().getKey(), range);
+        valkeyClient.putObject(buffer, objectKey.getS3URI().getKey(), range);
 
         inputStream.close();
 
