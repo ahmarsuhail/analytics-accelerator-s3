@@ -27,11 +27,6 @@ public class ValkeyClient {
                                 .port(6379)
                                 .build())
                         .requestTimeout(5000)
-                        .advancedConfiguration(AdvancedGlideClusterClientConfiguration
-                                .builder()
-                                .connectionTimeout(5000)
-                                .build()
-                        )
                         .useTLS(true)
                         .build();
 

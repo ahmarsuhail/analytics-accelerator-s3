@@ -41,19 +41,19 @@ public class StreamReaderV2 {
 
         Range range = new Range(pos, endPos);
 
-//       byte[] b = valkeyClient.getObject(valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
-//
-//       if (b != null) {
-//           System.arraycopy(b, 0, buffer, 0, len);
-//
-//           long endTime = System.nanoTime();
-//           long durationNanos = endTime - cacheStartTime;
-//           long durationMillis = durationNanos / 1_000_000;
-//
-//           LOG.debug("Cache retrieval Operation took {} for key {}", durationMillis, valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
-//
-//           return;
-//       }
+       byte[] b = valkeyClient.getObject(valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
+
+       if (b != null) {
+           System.arraycopy(b, 0, buffer, 0, len);
+
+           long endTime = System.nanoTime();
+           long durationNanos = endTime - cacheStartTime;
+           long durationMillis = durationNanos / 1_000_000;
+
+           LOG.debug("Cache retrieval Operation took {} for key {}", durationMillis, valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
+
+           return;
+       }
 
         LOG.debug("KEY NOT FOUND! {}, MAKING S3 GET REQUEST ", objectKey.getS3URI().getKey());
 
@@ -80,7 +80,7 @@ public class StreamReaderV2 {
             totalRead += bytesRead;
         }
 
-        valkeyClient.putObject(buffer, objectKey.getS3URI().getKey(), range);
+      //  valkeyClient.putObject(buffer, objectKey.getS3URI().getKey(), range);
 
         inputStream.close();
 
