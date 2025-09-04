@@ -36,6 +36,8 @@ import software.amazon.s3.analyticsaccelerator.io.physical.data.BlobStore;
 import software.amazon.s3.analyticsaccelerator.io.physical.data.MetadataStore;
 import software.amazon.s3.analyticsaccelerator.io.physical.plan.IOPlan;
 import software.amazon.s3.analyticsaccelerator.io.physical.plan.IOPlanExecution;
+import software.amazon.s3.analyticsaccelerator.io.physical.reader.StreamReader;
+import software.amazon.s3.analyticsaccelerator.io.physical.reader.StreamReaderV2;
 import software.amazon.s3.analyticsaccelerator.request.ObjectMetadata;
 import software.amazon.s3.analyticsaccelerator.request.Range;
 import software.amazon.s3.analyticsaccelerator.request.ReadMode;
@@ -55,6 +57,8 @@ public class PhysicalIOImpl implements PhysicalIO {
   private final ExecutorService threadPool;
 
   private final long physicalIOBirth = System.nanoTime();
+
+  private final StreamReaderV2 streamReader;
 
   private static final String OPERATION_READ = "physical.io.read";
   private static final String OPERATION_EXECUTE = "physical.io.execute";
@@ -80,7 +84,8 @@ public class PhysicalIOImpl implements PhysicalIO {
       @NonNull BlobStore blobStore,
       @NonNull Telemetry telemetry,
       @NonNull OpenStreamInformation openStreamInformation,
-      @NonNull ExecutorService threadPool)
+      @NonNull ExecutorService threadPool,
+      @NonNull StreamReaderV2 streamReader)
       throws IOException {
     this.metadataStore = metadataStore;
     this.blobStore = blobStore;
@@ -89,6 +94,7 @@ public class PhysicalIOImpl implements PhysicalIO {
     this.metadata = this.metadataStore.get(s3URI, openStreamInformation);
     this.objectKey = ObjectKey.builder().s3URI(s3URI).etag(metadata.getEtag()).build();
     this.threadPool = threadPool;
+    this.streamReader = streamReader;
   }
 
   /**
@@ -244,31 +250,24 @@ public class PhysicalIOImpl implements PhysicalIO {
       IntFunction<ByteBuffer> allocate,
       Consumer<ByteBuffer> release)
       throws IOException {
-    Blob blob = blobStore.get(objectKey, this.metadata, openStreamInformation);
+  //  Blob blob = blobStore.get(objectKey, this.metadata, openStreamInformation);
 
-    makeReadVectoredRangesAvailable(objectRanges);
+   // makeReadVectoredRangesAvailable(objectRanges);
 
     for (ObjectRange objectRange : objectRanges) {
       ByteBuffer buffer = allocate.apply(objectRange.getLength());
       threadPool.submit(
           () -> {
             try {
-              LOG.debug(
+              LOG.info(
                   "Starting readVectored for key: {}, range: {} - {}",
                   objectKey.getS3URI(),
                   objectRange.getOffset(),
                   objectRange.getOffset() + objectRange.getLength() - 1);
 
-              if (buffer.isDirect()) {
-                // Direct buffers do not support the buffer.array() method, so we need to read into
-                // them using a temp buffer.
-                readIntoDirectBuffer(buffer, blob, objectRange);
-                buffer.flip();
-              } else {
                 // there is no use of a temp byte buffer, or buffer.put() calls,
                 // so flip() is not needed.
-                blob.read(buffer.array(), 0, objectRange.getLength(), objectRange.getOffset());
-              }
+               this.streamReader.read(buffer.array(), 0, objectRange.getLength(), objectRange.getOffset(), objectKey);
               objectRange.getByteBuffer().complete(buffer);
             } catch (Exception e) {
               objectRange.getByteBuffer().completeExceptionally(e);

@@ -34,6 +34,9 @@ import software.amazon.s3.analyticsaccelerator.io.physical.PhysicalIO;
 import software.amazon.s3.analyticsaccelerator.io.physical.data.BlobStore;
 import software.amazon.s3.analyticsaccelerator.io.physical.data.MetadataStore;
 import software.amazon.s3.analyticsaccelerator.io.physical.impl.PhysicalIOImpl;
+import software.amazon.s3.analyticsaccelerator.io.physical.reader.StreamReader;
+import software.amazon.s3.analyticsaccelerator.io.physical.reader.StreamReaderV2;
+import software.amazon.s3.analyticsaccelerator.io.physical.reader.ValkeyClient;
 import software.amazon.s3.analyticsaccelerator.request.ObjectClient;
 import software.amazon.s3.analyticsaccelerator.request.ObjectMetadata;
 import software.amazon.s3.analyticsaccelerator.util.NamedThreadFactory;
@@ -61,6 +64,8 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
   private final ObjectFormatSelector objectFormatSelector;
   @Getter private final Metrics metrics;
   private final ExecutorService threadPool;
+  private final StreamReaderV2 streamReader;
+  private final ValkeyClient valkeyClient;
 
   private static final Logger LOG = LoggerFactory.getLogger(S3SeekableInputStreamFactory.class);
   private static final String THREAD_FACTORY_NAME = "s3-analytics-accelerator-";
@@ -98,6 +103,9 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
             configuration.getPhysicalIOConfiguration(),
             metrics,
             threadPool);
+    this.valkeyClient = new ValkeyClient();
+    this.streamReader = new StreamReaderV2(objectClient, this.valkeyClient);
+
     objectBlobStore.schedulePeriodicCleanup();
   }
 
@@ -171,7 +179,7 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
   PhysicalIO createPhysicalIO(S3URI s3URI, OpenStreamInformation openStreamInformation)
       throws IOException {
     return new PhysicalIOImpl(
-        s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool);
+        s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool, streamReader);
   }
 
   void storeObjectMetadata(S3URI s3URI, ObjectMetadata metadata) {

@@ -10,7 +10,7 @@ import com.github.jk1.license.render.TextReportRenderer
 
 val group = "software.amazon.s3.analyticsaccelerator"
 val artefact = "analyticsaccelerator-s3"
-val currentVersionNumber = "1.3.0"
+val currentVersionNumber = "3.0.0"
 
 val isSnapshot = findProperty("snapshotBuild") == "true"
 val currentVersion = if (isSnapshot) "SNAPSHOT" else currentVersionNumber;
@@ -75,6 +75,8 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.caffeine)
 
+    implementation("io.valkey:valkey-glide:2.0.1:linux-x86_64")
+
     jmhImplementation(libs.s3)
     jmhImplementation(libs.s3.transfer.manager)
     jmhImplementation(libs.netty.nio.client)
@@ -110,7 +112,7 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.compileJava {
     javaCompiler = javaToolchains.compilerFor {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
