@@ -1,6 +1,7 @@
 package software.amazon.s3.analyticsaccelerator.io.physical.reader;
 
 import glide.api.GlideClusterClient;
+import glide.api.models.configuration.AdvancedGlideClusterClientConfiguration;
 import glide.api.models.configuration.GlideClusterClientConfiguration;
 import glide.api.models.configuration.NodeAddress;
 import org.slf4j.Logger;
@@ -25,7 +26,12 @@ public class ValkeyClient {
                                 .host("")
                                 .port(6379)
                                 .build())
-                        .requestTimeout(3000)
+                        .requestTimeout(5000)
+                        .advancedConfiguration(AdvancedGlideClusterClientConfiguration
+                                .builder()
+                                .connectionTimeout(5000)
+                                .build()
+                        )
                         .useTLS(true)
                         .build();
 
