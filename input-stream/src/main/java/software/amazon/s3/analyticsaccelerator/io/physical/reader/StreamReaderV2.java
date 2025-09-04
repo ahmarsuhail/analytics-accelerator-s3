@@ -50,12 +50,16 @@ public class StreamReaderV2 {
            long durationNanos = endTime - cacheStartTime;
            long durationMillis = durationNanos / 1_000_000;
 
-           LOG.debug("Cache retrieval Operation took {} for key {}", durationMillis, valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
+           System.out.println("Cache operation took: " + durationMillis + " ms");
+
+          // LOG.debug("Cache retrieval Operation took {} for key {}", durationMillis, valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
 
            return;
        }
 
-        LOG.debug("KEY NOT FOUND! {}, MAKING S3 GET REQUEST ", objectKey.getS3URI().getKey());
+        // LOG.debug("KEY NOT FOUND! {}, MAKING S3 GET REQUEST ", objectKey.getS3URI().getKey());
+
+        System.out.println("KEY NOT FOUND " + objectKey.getS3URI().getKey());
 
         long s3GETtime = System.nanoTime();
 
@@ -88,6 +92,8 @@ public class StreamReaderV2 {
         long durationNanos = endTime - s3GETtime;
         long durationMillis = durationNanos / 1_000_000;
 
-        LOG.debug("S3 GET Operation took: " + durationMillis + " ms");
+
+        System.out.println("S3 GET Operation took: " + durationMillis + " ms");
+      //  LOG.debug("S3 GET Operation took: " + durationMillis + " ms");
     }
 }
