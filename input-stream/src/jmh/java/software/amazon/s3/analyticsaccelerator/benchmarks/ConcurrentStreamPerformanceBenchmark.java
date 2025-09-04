@@ -115,6 +115,7 @@ public class ConcurrentStreamPerformanceBenchmark {
       this.s3SyncSeekableInputStreamFactory =
           new S3SeekableInputStreamFactory(
               new S3SyncSdkObjectClient(this.s3Client), S3SeekableInputStreamConfiguration.DEFAULT);
+
     }
 
     /** Shut down once all micro benchmarks in this class complete. */
@@ -139,39 +140,46 @@ public class ConcurrentStreamPerformanceBenchmark {
     System.out.println(
         "\nReading parquet files with: " + state.clientKind + " from bucket: " + bucket);
 
-    for (int i = 0; i < state.s3Objects.size() - 1; i = i + state.maxConcurrency) {
+    for (int i = 0; i < state.s3Objects.size() - 1; i++) {
       List<CompletableFuture<?>> futures = new ArrayList<>();
 
-      for (int j = i; j < i + state.maxConcurrency && j < state.s3Objects.size() - 1; j++) {
-        final int k = j;
-        CompletableFuture<?> f =
-            CompletableFuture.runAsync(
-                () -> {
-                  try {
-                    if (state.clientKind == S3ClientAndReadKind.AAL_ASYNC_READ_VECTORED) {
-                      fetchObjectsFromAAL(
+      fetchObjectsFromAAL(
                           bucket,
-                          state.s3Objects.get(k),
-                          state,
-                          state.s3AsyncSeekableInputStreamFactory);
-                    } else if (state.clientKind == S3ClientAndReadKind.AAL_SYNC_READ_VECTORED) {
-                      fetchObjectsFromAAL(
-                          bucket,
-                          state.s3Objects.get(k),
+                          state.s3Objects.get(i),
                           state,
                           state.s3SyncSeekableInputStreamFactory);
-                    } else {
-                      fetchObjectChunksByRange(bucket, state.s3Objects.get(k), state);
-                    }
-                  } catch (Exception e) {
-                    throw new RuntimeException(e);
-                  }
-                },
-                state.executor);
-        futures.add(f);
-      }
 
-      CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).get();
+
+//      for (int j = i; j < i + state.maxConcurrency && j < state.s3Objects.size() - 1; j++) {
+//        final int k = j;
+//        CompletableFuture<?> f =
+//            CompletableFuture.runAsync(
+//                () -> {
+//                  try {
+//                    if (state.clientKind == S3ClientAndReadKind.AAL_ASYNC_READ_VECTORED) {
+//                      fetchObjectsFromAAL(
+//                          bucket,
+//                          state.s3Objects.get(k),
+//                          state,
+//                          state.s3AsyncSeekableInputStreamFactory);
+//                    } else if (state.clientKind == S3ClientAndReadKind.AAL_SYNC_READ_VECTORED) {
+//                      fetchObjectsFromAAL(
+//                          bucket,
+//                          state.s3Objects.get(k),
+//                          state,
+//                          state.s3SyncSeekableInputStreamFactory);
+//                    } else {
+//                      fetchObjectChunksByRange(bucket, state.s3Objects.get(k), state);
+//                    }
+//                  } catch (Exception e) {
+//                    throw new RuntimeException(e);
+//                  }
+//                },
+//                state.executor);
+//        futures.add(f);
+//      }
+//
+//      CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).get();
     }
   }
 
