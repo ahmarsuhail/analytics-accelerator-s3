@@ -93,7 +93,7 @@ public class StreamReaderV2 {
         long durationMillis = durationNanos / 1_000_000;
 
 
-        System.out.println("S3 GET Operation took: " + durationMillis + " ms");
+        System.out.println("S3 GET Operation took: " + durationMillis + " ms" + "for size: " + range.getLength() / (1024.0 * 1024.0));
       //  LOG.debug("S3 GET Operation took: " + durationMillis + " ms");
     }
 }
