@@ -50,7 +50,7 @@ public class StreamReaderV2 {
            long durationNanos = endTime - cacheStartTime;
            long durationMillis = durationNanos / 1_000_000;
 
-           System.out.println("Cache operation took: " + durationMillis + " ms");
+           System.out.println("Cache operation took: " + durationMillis + " ms" + "for size: " + range.getLength() / (1024.0 * 1024.0));
 
           // LOG.debug("Cache retrieval Operation took {} for key {}", durationMillis, valkeyClient.buildCacheKey(objectKey.getS3URI().getKey(), range));
 
