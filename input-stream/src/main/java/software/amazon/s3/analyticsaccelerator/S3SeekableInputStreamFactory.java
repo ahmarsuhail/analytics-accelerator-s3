@@ -108,7 +108,7 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
             metrics,
             threadPool);
 
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<20; i++) {
       valkeyClients.add(new ValkeyClient());
     }
 
@@ -187,10 +187,10 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
   PhysicalIO createPhysicalIO(S3URI s3URI, OpenStreamInformation openStreamInformation)
       throws IOException {
 
-    int x = random.nextInt(10);
+    int x = random.nextInt(20);
 
     System.out.println("USING CLIENT " + x);
-    
+
     return new PhysicalIOImpl(
         s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool,
             new StreamReaderV2(objectClient, valkeyClients.get(x)));
@@ -213,5 +213,9 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
     this.objectBlobStore.close();
     this.telemetry.close();
     this.threadPool.shutdown();
+
+    for (ValkeyClient valkeyClient : valkeyClients) {
+        valkeyClient.close();
+    }
   }
 }

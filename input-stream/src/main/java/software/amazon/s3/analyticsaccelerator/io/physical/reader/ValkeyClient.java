@@ -74,4 +74,12 @@ public class ValkeyClient {
         public String buildCacheKey(String key, Range range) {
             return String.format("%s-%d-%d", key, range.getStart(), range.getEnd());
         }
+
+        public void close() {
+           try {
+               client.close();
+           } catch (Exception e) {
+               System.out.printf("OOPS!");
+           }
+        }
 }
