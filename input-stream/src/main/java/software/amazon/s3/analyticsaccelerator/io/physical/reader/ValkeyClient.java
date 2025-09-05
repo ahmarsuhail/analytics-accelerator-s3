@@ -4,6 +4,7 @@ import glide.api.GlideClusterClient;
 import glide.api.models.configuration.AdvancedGlideClusterClientConfiguration;
 import glide.api.models.configuration.GlideClusterClientConfiguration;
 import glide.api.models.configuration.NodeAddress;
+import glide.api.models.configuration.ReadFrom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.s3.analyticsaccelerator.S3SeekableInputStreamFactory;
@@ -27,6 +28,7 @@ public class ValkeyClient {
                                 .port(6379)
                                 .build())
                         .requestTimeout(5000)
+                        .readFrom(ReadFrom.PREFER_REPLICA)
                         .useTLS(true)
                         .build();
 
