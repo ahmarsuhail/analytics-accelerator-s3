@@ -46,7 +46,7 @@ public class ValkeyClient {
 
         String cacheKey = buildCacheKey(key, range);
 
-        this.client.set(cacheKey, s);
+        this.client.set(cacheKey, s).join();
 
         System.out.println("PUTTING DATA FOR: " + cacheKey + "LENGTH: " + buf.length);
     }
