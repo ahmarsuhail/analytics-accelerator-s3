@@ -66,6 +66,7 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
   private final ExecutorService threadPool;
   private final StreamReaderV2 streamReader;
   private final ValkeyClient valkeyClient;
+  private final ObjectClient objectClient;
 
   private static final Logger LOG = LoggerFactory.getLogger(S3SeekableInputStreamFactory.class);
   private static final String THREAD_FACTORY_NAME = "s3-analytics-accelerator-";
@@ -105,6 +106,7 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
             threadPool);
     this.valkeyClient = new ValkeyClient();
     this.streamReader = new StreamReaderV2(objectClient, this.valkeyClient);
+    this.objectClient = objectClient;
 
     objectBlobStore.schedulePeriodicCleanup();
   }
@@ -179,7 +181,8 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
   PhysicalIO createPhysicalIO(S3URI s3URI, OpenStreamInformation openStreamInformation)
       throws IOException {
     return new PhysicalIOImpl(
-        s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool, streamReader);
+        s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool,
+            new StreamReaderV2(objectClient, new ValkeyClient()));
   }
 
   void storeObjectMetadata(S3URI s3URI, ObjectMetadata metadata) {
