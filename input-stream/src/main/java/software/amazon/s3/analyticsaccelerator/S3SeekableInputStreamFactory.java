@@ -16,6 +16,9 @@
 package software.amazon.s3.analyticsaccelerator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.AccessLevel;
@@ -64,9 +67,9 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
   private final ObjectFormatSelector objectFormatSelector;
   @Getter private final Metrics metrics;
   private final ExecutorService threadPool;
-  private final StreamReaderV2 streamReader;
-  private final ValkeyClient valkeyClient;
   private final ObjectClient objectClient;
+  private final List<ValkeyClient> valkeyClients =  new ArrayList<>();
+  private static final Random random = new Random();
 
   private static final Logger LOG = LoggerFactory.getLogger(S3SeekableInputStreamFactory.class);
   private static final String THREAD_FACTORY_NAME = "s3-analytics-accelerator-";
@@ -104,8 +107,11 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
             configuration.getPhysicalIOConfiguration(),
             metrics,
             threadPool);
-    this.valkeyClient = new ValkeyClient();
-    this.streamReader = new StreamReaderV2(objectClient, this.valkeyClient);
+
+    for (int i=0; i<10; i++) {
+      valkeyClients.add(new ValkeyClient());
+    }
+
     this.objectClient = objectClient;
 
     objectBlobStore.schedulePeriodicCleanup();
@@ -180,9 +186,14 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
 
   PhysicalIO createPhysicalIO(S3URI s3URI, OpenStreamInformation openStreamInformation)
       throws IOException {
+
+    int x = random.nextInt(10);
+
+    System.out.println("USING CLIENT " + x);
+    
     return new PhysicalIOImpl(
         s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool,
-            new StreamReaderV2(objectClient, new ValkeyClient()));
+            new StreamReaderV2(objectClient, valkeyClients.get(x)));
   }
 
   void storeObjectMetadata(S3URI s3URI, ObjectMetadata metadata) {
