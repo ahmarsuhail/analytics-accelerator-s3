@@ -1,7 +1,9 @@
 package software.amazon.s3.analyticsaccelerator.io.physical.reader;
 
+import glide.api.GlideClient;
 import glide.api.GlideClusterClient;
 import glide.api.models.configuration.AdvancedGlideClusterClientConfiguration;
+import glide.api.models.configuration.GlideClientConfiguration;
 import glide.api.models.configuration.GlideClusterClientConfiguration;
 import glide.api.models.configuration.NodeAddress;
 import glide.api.models.configuration.ReadFrom;
@@ -11,9 +13,10 @@ import software.amazon.s3.analyticsaccelerator.S3SeekableInputStreamFactory;
 import software.amazon.s3.analyticsaccelerator.request.Range;
 
 import java.util.Base64;
+import java.util.List;
 
 public class ValkeyClient {
-        GlideClusterClient client;
+        GlideClient client;
 
     private static final Logger LOG = LoggerFactory.getLogger(ValkeyClient .class);
 
@@ -22,17 +25,16 @@ public class ValkeyClient {
 
             try {
                 // Configure the Glide Client
-                GlideClusterClientConfiguration config = GlideClusterClientConfiguration.builder()
+                GlideClientConfiguration config = GlideClientConfiguration.builder()
                         .address(NodeAddress.builder()
                                 .host("")
                                 .port(6379)
                                 .build())
                         .requestTimeout(5000)
-                        .readFrom(ReadFrom.PREFER_REPLICA)
                         .useTLS(true)
                         .build();
 
-                this.client = GlideClusterClient.createClient(config).get();
+                this.client = GlideClient.createClient(config).get();
             } catch (Exception e) {
                 System.out.println("OOPS!");
             }
