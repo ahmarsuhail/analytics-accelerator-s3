@@ -142,11 +142,21 @@ public class ConcurrentStreamPerformanceBenchmark {
     for (int i = 0; i < 50; i ++) {
       List<CompletableFuture<?>> futures = new ArrayList<>();
 
-      fetchObjectsFromAAL(
-              bucket,
-              state.s3Objects.get(i),
-              state,
-              state.s3SyncSeekableInputStreamFactory);
+                    if (state.clientKind == S3ClientAndReadKind.AAL_ASYNC_READ_VECTORED) {
+                      fetchObjectsFromAAL(
+                          bucket,
+                          state.s3Objects.get(i),
+                          state,
+                          state.s3AsyncSeekableInputStreamFactory);
+                    } else if (state.clientKind == S3ClientAndReadKind.AAL_SYNC_READ_VECTORED) {
+                      fetchObjectsFromAAL(
+                          bucket,
+                          state.s3Objects.get(i),
+                          state,
+                          state.s3SyncSeekableInputStreamFactory);
+                    } else {
+                      fetchObjectChunksByRange(bucket, state.s3Objects.get(i), state);
+                    }
 
 //      for (int j = i; j < i + state.maxConcurrency && j < state.s3Objects.size() - 1; j++) {
 //        final int k = j;
