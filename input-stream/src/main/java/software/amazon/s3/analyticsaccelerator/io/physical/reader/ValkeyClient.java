@@ -26,11 +26,18 @@ public class ValkeyClient {
             try {
                 // Configure the Glide Client
                 GlideClientConfiguration config = GlideClientConfiguration.builder()
-                        .address(NodeAddress.builder()
+                        .addresses(List.of(
+                                NodeAddress.builder()
                                 .host("")
                                 .port(6379)
-                                .build())
+                                .build(),
+                                NodeAddress.builder()
+                                        .host("")
+                                        .port(6379)
+                                        .build()
+                        ))
                         .requestTimeout(5000)
+                        .readFrom(ReadFrom.PREFER_REPLICA)
                         .useTLS(true)
                         .build();
 
