@@ -189,7 +189,6 @@ public class S3SeekableInputStreamFactory implements AutoCloseable {
 
     int x = random.nextInt(20);
 
-    System.out.println("USING CLIENT " + x);
 
     return new PhysicalIOImpl(
         s3URI, objectMetadataStore, objectBlobStore, telemetry, openStreamInformation, threadPool,
